@@ -24,32 +24,37 @@ export const UserSchema = SchemaFactory.createForClass(User);
 // Add pre-save hook for password hashing
 UserSchema.pre('save', async function (next) {
   try {
-    const user = this;
-
     // Only hash the password if it has been modified (or is new)
-    if (!user.isModified('password')) {
+    if (!this.isModified('password')) {
       return next();
     }
 
     // Generate a salt and hash the password
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
+    this.password = await bcrypt.hash(this.password, salt);
 
     next();
   } catch (error) {
-    Logger.error(`Error hashing password: ${error.message}`, 'UserSchema');
-    next(error);
+    Logger.error(
+      `Error hashing password: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'UserSchema',
+    );
+    next(error instanceof Error ? error : new Error(String(error)));
   }
 });
 
 // Add method to compare passwords
 UserSchema.methods.comparePassword = async function (
+  this: { password: string },
   candidatePassword: string,
 ): Promise<boolean> {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
-    Logger.error(`Error comparing passwords: ${error.message}`, 'UserSchema');
+    Logger.error(
+      `Error comparing passwords: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'UserSchema',
+    );
     return false;
   }
 };

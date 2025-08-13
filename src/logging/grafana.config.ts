@@ -7,9 +7,10 @@ import * as pino from 'pino';
  * @returns Pino logger configuration for Grafana Loki
  */
 export const createGrafanaLokiTransport = (configService: ConfigService) => {
-  const isProduction = configService.get('NODE_ENV') === 'production';
-  const serviceName = configService.get('SERVICE_NAME', 'auth-service');
-  
+  const isProduction: boolean =
+    configService.get<string>('NODE_ENV') === 'production';
+  const serviceName: string = configService.get('SERVICE_NAME', 'auth-service');
+
   if (!isProduction) {
     return {
       target: 'pino-pretty',
@@ -29,10 +30,10 @@ export const createGrafanaLokiTransport = (configService: ConfigService) => {
       batching: true,
       interval: 5,
       labels: { app: serviceName },
-      host: configService.get('LOKI_HOST', 'http://loki:3100'),
+      host: configService.get<string>('LOKI_HOST', 'http://loki:3100'),
       basicAuth: {
-        username: configService.get('LOKI_USERNAME', ''),
-        password: configService.get('LOKI_PASSWORD', ''),
+        username: configService.get<string>('LOKI_USERNAME', ''),
+        password: configService.get<string>('LOKI_PASSWORD', ''),
       },
       // Add custom formatters for Grafana Loki
       formatters: {
@@ -40,17 +41,27 @@ export const createGrafanaLokiTransport = (configService: ConfigService) => {
           return { level: label };
         },
         bindings: (bindings: pino.Bindings) => {
-          return { ...bindings };
+          // Safe spread of bindings object
+          return { ...bindings } as Record<string, unknown>;
         },
-        log: (log: object) => {
+        log: (log: Record<string, unknown>) => {
           // Extract and format stack traces for better readability in Grafana
-          if (log['err'] && log['err'].stack) {
+          // Safely extract error information with proper type checking
+          const err = log['err'];
+          if (err && typeof err === 'object' && err !== null) {
+            const errorObj = err as Record<string, unknown>;
+            const stack = errorObj.stack as string | undefined;
+            const message = errorObj.message as string | undefined;
+            const type =
+              (errorObj.type as string | undefined) ||
+              (errorObj.name as string | undefined);
+
             return {
               ...log,
               error: {
-                message: log['err'].message,
-                stack: log['err'].stack,
-                type: log['err'].type || log['err'].name,
+                message: message || 'Unknown error',
+                stack: stack || '',
+                type: type || 'Error',
               },
             };
           }

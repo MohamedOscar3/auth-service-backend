@@ -13,7 +13,12 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from '../users/dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,7 +30,10 @@ export class AuthController {
   @Post('signup')
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully created' })
-  @ApiResponse({ status: 409, description: 'User with this email already exists' })
+  @ApiResponse({
+    status: 409,
+    description: 'User with this email already exists',
+  })
   async signUp(@Body() createUserDto: CreateUserDto) {
     this.logger.log('Processing signup request');
     return this.authService.signUp(createUserDto);
@@ -47,7 +55,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get welcome message (protected route)' })
   @ApiResponse({ status: 200, description: 'Welcome message returned' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getWelcome(@Req() req) {
+  getWelcome(@Req() req: { user: { email: string } }) {
     this.logger.log(`User ${req.user.email} accessed welcome endpoint`);
     return {
       message: `Welcome ${req.user.email}! You have successfully authenticated.`,
@@ -62,7 +70,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout user (client-side)' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  logout(@Req() req) {
+  logout(@Req() req: { user: { email: string } }) {
     this.logger.log(`User ${req.user.email} logged out`);
     return { message: 'Logout successful' };
   }

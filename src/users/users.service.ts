@@ -37,9 +37,12 @@ export class UsersService {
       const newUser = new this.userModel(createUserDto);
       const savedUser = await newUser.save();
 
-      this.logger.log(`User created successfully with ID: ${savedUser._id}`);
+      this.logger.log(
+        `User created successfully with ID: ${String(savedUser._id)}`,
+      );
 
       // Return user without password
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = savedUser.toObject();
       return result as Omit<User, 'password'>;
     } catch (error) {
@@ -48,14 +51,22 @@ export class UsersService {
       }
 
       // Handle MongoDB duplicate key error
-      if (error.code === 11000) {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as { code: number }).code === 11000
+      ) {
         this.logger.warn(
-          `Duplicate key error: ${JSON.stringify(error.keyValue)}`,
+          `Duplicate key error: ${JSON.stringify((error as { keyValue: unknown }).keyValue)}`,
         );
         throw new ConflictException('User with this email already exists');
       }
 
-      this.logger.error(`Failed to create user: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : '',
+      );
       throw new InternalServerErrorException('Failed to create user');
     }
   }
@@ -71,7 +82,7 @@ export class UsersService {
         throw new NotFoundException('User not found');
       }
 
-      this.logger.log(`User found with ID: ${user._id}`);
+      this.logger.log(`User found with ID: ${String(user._id)}`);
       return user;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -79,8 +90,8 @@ export class UsersService {
       }
 
       this.logger.error(
-        `Failed to find user by email: ${error.message}`,
-        error.stack,
+        `Failed to find user by email: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : '',
       );
       throw new InternalServerErrorException('Failed to find user');
     }

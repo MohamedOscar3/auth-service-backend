@@ -28,7 +28,10 @@ export class AuthService {
 
       return { user, accessToken };
     } catch (error) {
-      this.logger.error(`Sign up failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Sign up failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : '',
+      );
       throw error;
     }
   }
@@ -49,8 +52,14 @@ export class AuthService {
       }
 
       this.logger.log(`User ${email} signed in successfully`);
-      const { password: _, ...userWithoutPassword } = user.toObject();
-      const accessToken = this.generateToken(userWithoutPassword);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { ...userWithoutPassword }: Omit<User, 'password'> =
+        user.toObject();
+
+      const accessToken = this.generateToken(
+        userWithoutPassword as Record<string, unknown>,
+      );
 
       return {
         user: userWithoutPassword as Omit<User, 'password'>,
@@ -60,13 +69,25 @@ export class AuthService {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      this.logger.error(`Sign in failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Sign in failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : '',
+      );
       throw new InternalServerErrorException('Authentication failed');
     }
   }
 
-  private generateToken(user: any): string {
-    const payload = { sub: user._id, email: user.email };
+  private generateToken(user: Record<string, unknown>): string {
+    // Define a properly typed payload to avoid unsafe assignment
+    interface JwtPayload {
+      sub: string;
+      email: string;
+    }
+
+    const payload: JwtPayload = {
+      sub: user._id as string,
+      email: user.email as string,
+    };
     return this.jwtService.sign(payload);
   }
 }

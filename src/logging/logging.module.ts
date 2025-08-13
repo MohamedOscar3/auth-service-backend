@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { IncomingMessage } from 'http';
 
 @Module({
   imports: [
@@ -9,7 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const isProduction = configService.get('NODE_ENV') === 'production';
-        
+
         return {
           pinoHttp: {
             transport: isProduction
@@ -25,18 +26,36 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
                 },
             level: isProduction ? 'info' : 'debug',
             // Remove sensitive data from logs
-            redact: ['req.headers.authorization', 'req.headers.cookie', 'req.body.password'],
+            redact: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'req.body.password',
+            ],
             // Add request context
-            customProps: (req) => {
-              const user = (req as any).user;
+            customProps: (req: IncomingMessage) => {
+              // Access the request ID and user from req if available
+              // Using type assertion since NestJS adds these properties
+              const reqWithId = req as unknown as { id?: string };
+              const reqWithUser = req as unknown as {
+                user?: { userId: string };
+              };
+
               return {
-                correlationId: req.id,
-                userId: user?.userId || 'anonymous',
+                correlationId: reqWithId.id || 'unknown',
+                userId: reqWithUser.user?.userId || 'anonymous',
               };
             },
             // Custom serializers
             serializers: {
-              req: (req) => ({
+              req: (req: {
+                id: string;
+                method: string;
+                url: string;
+                query: Record<string, unknown>;
+                params: Record<string, unknown>;
+                headers: Record<string, unknown>;
+                raw: { body: unknown };
+              }) => ({
                 id: req.id,
                 method: req.method,
                 url: req.url,
