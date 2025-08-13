@@ -1,0 +1,71 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          __path__: /var/log/*log
+
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*log
+
+  # Discover Docker containers and keep only the auth app; add labels and parse JSON
+  - job_name: auth_service_docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      # Keep only containers whose name matches /auth-app (e.g., auth-app-1)
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/auth-app.*'
+        action: keep
+      # Preserve container name as a label
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: container
+      # Set consistent labels expected by Grafana dashboard
+      - target_label: job
+        replacement: auth_service
+      - target_label: app
+        replacement: auth-service
+    pipeline_stages:
+      # Parse the Docker JSON log payload and promote fields
+      - docker: {}
+      # If the application logs JSON, parse fields from the message
+      - json:
+          source: log
+          expressions:
+            level: level
+            req_method: req_method
+            req_url: req_url
+      # Optionally, try logfmt if not JSON (won't error if no matches)
+      - logfmt:
+          mapping:
+            level: level
+            req_method: req_method
+            req_url: req_url
+      # As a fallback for plain text logs containing lines like "POST /auth/signup",
+      # extract HTTP method and URL using regex named captures.
+      - regex:
+          expression: '.*\b(?P<req_method>GET|POST|PUT|PATCH|DELETE|OPTIONS)\b\s+(?P<req_url>/[A-Za-z0-9_\-./?=&%]+)'
+      # Promote selected fields to labels so Grafana queries work
+      - labels:
+          level:
+          req_method:
+          req_url:
