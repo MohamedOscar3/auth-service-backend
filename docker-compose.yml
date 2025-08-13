@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV:-development}
+      target: ${NODE_ENV:-development}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/auth}
+    depends_on:
+      - mongodb
+    command: |
+      sh -c "if [ "$${NODE_ENV}" = "production" ]; then
+        node dist/main;
+      else
+        npm run start:dev;
+      fi"
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - '27017:27017'
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
