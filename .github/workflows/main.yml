@@ -192,14 +192,16 @@ jobs:
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/docker-compose.yml
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/docker-compose.observability.yml
 
-            # Create necessary directories
+            # Create necessary directories with proper permissions
             mkdir -p prometheus
-            mkdir -p loki-data/data loki-data/wal
+            mkdir -p loki-data
             mkdir -p grafana/provisioning/datasources grafana/provisioning/dashboards
+
+            # Set proper permissions
+            sudo chmod -R 777 loki-data
 
             # Download configuration files
             curl -o prometheus/prometheus.yml https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/prometheus/prometheus.yml
-            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/loki-config.yml
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/promtail-config.yml
 
             # Download Dockerfile

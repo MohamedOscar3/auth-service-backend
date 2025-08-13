@@ -4,14 +4,12 @@ services:
   loki:
     image: grafana/loki:latest
     ports:
-      - "3100:3100"
+      - '3100:3100'
     volumes:
-      - ./loki-config.yml:/etc/loki/local-config.yaml
-      - ./loki-data/data:/loki
-      - ./loki-data/wal:/wal
+      - ./loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
-    user: "0:0"
+    user: '0:0'
 
   promtail:
     image: grafana/promtail:latest
@@ -28,7 +26,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3200:3000"
+      - '3200:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
