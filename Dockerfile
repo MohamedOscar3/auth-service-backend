@@ -28,13 +28,15 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install only production dependencies
+# Set HUSKY=0 to skip husky installation
+ENV HUSKY=0
 RUN npm ci --only=production
 
 # Copy built app from development stage
 COPY --from=development /usr/src/app/dist ./dist
 
-# Copy necessary config files
-COPY --from=development /usr/src/app/.env ./.env
+# Copy necessary config files (if .env exists)
+COPY --from=development /usr/src/app/.env* ./ || true
 
 # Expose port
 EXPOSE 3000
