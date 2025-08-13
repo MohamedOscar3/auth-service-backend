@@ -187,15 +187,23 @@ jobs:
             echo "Logging in to Docker Hub..."
             echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-            # Download docker-compose files
+            # Download docker-compose files and configurations
             echo "Downloading docker-compose files..."
-            curl -o docker-compose.yml https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/docker-compose.yml
-            curl -o docker-compose.observability.yml https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/docker-compose.observability.yml
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/docker-compose.yml
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/docker-compose.observability.yml
 
-            # Download Prometheus and Promtail config files
-            echo "Downloading monitoring configuration files..."
+            # Create necessary directories
             mkdir -p prometheus
+            mkdir -p loki-data/data loki-data/wal
+            mkdir -p grafana/provisioning/datasources grafana/provisioning/dashboards
+
+            # Download configuration files
             curl -o prometheus/prometheus.yml https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/prometheus/prometheus.yml
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/loki-config.yml
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/promtail-config.yml
+
+            # Download Dockerfile
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/Dockerfile
 
             # Create .env file for docker-compose
             echo "Creating .env file..."
