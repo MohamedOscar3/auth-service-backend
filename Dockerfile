@@ -36,8 +36,10 @@ RUN npm ci --only=production
 # Copy built app from development stage
 COPY --from=development /usr/src/app/dist ./dist
 
-# Copy necessary config files (if .env exists)
-COPY --from=development /usr/src/app/.env* ./ || true
+# Copy necessary config files if they exist
+RUN mkdir -p /tmp/env-files
+COPY --from=development /usr/src/app/.env* /tmp/env-files/ 2>/dev/null || true
+RUN if [ -d "/tmp/env-files" ] && [ "$(ls -A /tmp/env-files)" ]; then cp /tmp/env-files/* ./ && echo "Env files copied"; else echo "No env files found"; fi
 
 # Expose port
 EXPOSE 3000
