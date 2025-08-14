@@ -14,9 +14,9 @@ const mongooseImport =
         MongooseModule.forRootAsync({
           inject: [ConfigService],
           useFactory: (config: ConfigService) => {
-            const uri = config.get<string>('MONGO_URI');
+            const uri = config.get<string>('MONGODB_URI');
             if (!uri) {
-              throw new Error('MONGO_URI is not defined');
+              throw new Error('MONGODB_URI is not defined');
             }
             return { uri };
           },
