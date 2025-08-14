@@ -13,13 +13,14 @@ COPY package*.json ./
 # Skip husky installation in CI environment
 ENV HUSKY=0
 
-# Install only production dependencies
-RUN npm ci --omit=dev
+# Install dependencies including dev dependencies for build
+RUN npm ci
 
 # Copy app files
 COPY . .
 
-
+# Build the application
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
