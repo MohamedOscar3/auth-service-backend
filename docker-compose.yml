@@ -1,8 +1,8 @@
-version: '3.8'
-
 services:
   app:
-    image: ${DOCKER_USERNAME:-twicem}/auth-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
