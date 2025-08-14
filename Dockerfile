@@ -27,11 +27,11 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Skip husky installation in CI environment
-ENV HUSKY=0
+# Temporarily modify package.json to remove husky prepare script
+RUN npm pkg delete scripts.prepare
 
 # Install only production dependencies
-RUN npm ci --omit=dev
+RUN npm ci --only=production
 
 # Copy built app from development stage
 COPY --from=development /usr/src/app/dist ./dist
