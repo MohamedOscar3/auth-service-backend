@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: ${DOCKER_USERNAME:-mohamedoscar3}/auth-service:latest
+    image: ${DOCKER_USERNAME:-twicem}/auth-service:latest
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
