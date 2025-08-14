@@ -204,10 +204,12 @@ jobs:
             curl -o prometheus/prometheus.yml https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/prometheus/prometheus.yml
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/promtail-config.yml
 
-            # Download Dockerfile and package.json
+            # Download Dockerfile, package.json, and tsconfig.json
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/Dockerfile
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/package.json
             curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/package-lock.json
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/tsconfig.json
+            curl -O https://raw.githubusercontent.com/MohamedOscar3/auth-service-backend/main/tsconfig.build.json
 
             # Create .env file for docker-compose
             echo "Creating .env file..."
