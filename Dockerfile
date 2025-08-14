@@ -14,12 +14,13 @@ COPY package*.json ./
 ENV HUSKY=0
 
 # Install dependencies including dev dependencies for build
-RUN npm ci
+RUN npm i -g @nestjs/cli && npm ci
 
 # Copy app files
 COPY . .
 
 # Build the application
+
 RUN npm run build
 
 # Expose port
