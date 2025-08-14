@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME}/auth-service:latest
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
