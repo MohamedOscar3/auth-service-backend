@@ -31,7 +31,7 @@ COPY package*.json ./
 ENV HUSKY=0
 
 # Install only production dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built app from development stage
 COPY --from=development /usr/src/app/dist ./dist
