@@ -17,7 +17,7 @@ services:
       - mongodb
     command: |
       sh -c "if [ "$${NODE_ENV}" = "production" ]; then
-        node dist/main;
+        npm run build && node dist/main;
       else
         npm run start:dev;
       fi"
