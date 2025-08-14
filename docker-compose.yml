@@ -1,6 +1,7 @@
 services:
   app:
     image: ${DOCKER_USERNAME}/auth-service:latest
+    platform: linux/amd64 # Add platform for compatibility with Apple Silicon
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
