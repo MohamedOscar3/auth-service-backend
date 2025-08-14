@@ -27,9 +27,6 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
-# Temporarily modify package.json to remove husky prepare script
-RUN npm pkg delete scripts.prepare
-
 # Install only production dependencies
 RUN npm ci --only=production
 
