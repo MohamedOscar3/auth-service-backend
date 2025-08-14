@@ -218,7 +218,7 @@ jobs:
             PORT=3000
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            MONGO_URI=${{ secrets.MONGODB_URI }}
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD || 'admin' }}
             GRAFANA_ADMIN_USER=admin
             GRAFANA_ALLOW_SIGNUP=false

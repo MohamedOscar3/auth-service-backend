@@ -82,12 +82,12 @@ Swagger documentation is available at `/docs` when the application is running.
 
 ### Endpoints
 
-| Method | Endpoint | Description | Authentication |
-|--------|----------|-------------|-------------|
-| POST | `/auth/signup` | Register a new user | None |
-| POST | `/auth/signin` | Login and get JWT token | None |
-| GET | `/auth/welcome` | Welcome page | JWT required |
-| POST | `/auth/logout` | Logout (client-side) | JWT required |
+| Method | Endpoint        | Description             | Authentication |
+| ------ | --------------- | ----------------------- | -------------- |
+| POST   | `/auth/signup`  | Register a new user     | None           |
+| POST   | `/auth/signin`  | Login and get JWT token | None           |
+| GET    | `/auth/welcome` | Welcome page            | JWT required   |
+| POST   | `/auth/logout`  | Logout (client-side)    | JWT required   |
 
 ### Request Examples
 
@@ -166,17 +166,16 @@ The project includes a GitHub Actions workflow that:
 
 ## 🔧 Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MONGODB_URI` | MongoDB connection string | `mongodb://mongodb:27017/auth` |
-| `JWT_SECRET` | Secret for JWT signing | *required* |
-| `JWT_EXPIRES_IN` | JWT expiration time | `1d` |
-| `NODE_ENV` | Environment | `development` |
+| Variable         | Description               | Default                        |
+| ---------------- | ------------------------- | ------------------------------ |
+| `MONGO_URI`      | MongoDB connection string | `mongodb://mongodb:27017/auth` |
+| `JWT_SECRET`     | Secret for JWT signing    | _required_                     |
+| `JWT_EXPIRES_IN` | JWT expiration time       | `1d`                           |
+| `NODE_ENV`       | Environment               | `development`                  |
 
 ## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
 
 ## Environment Variables
 
