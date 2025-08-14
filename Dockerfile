@@ -3,8 +3,11 @@ FROM node:18-alpine AS development
 # Create app directory
 WORKDIR /usr/src/app
 
-# Copy package files
+# Copy package files first for better caching
 COPY package*.json ./
+
+# Skip husky installation in CI environment
+ENV HUSKY=0
 
 # Install dependencies
 RUN npm install
@@ -27,8 +30,11 @@ WORKDIR /usr/src/app
 # Copy package files
 COPY package*.json ./
 
+# Skip husky installation in CI environment
+ENV HUSKY=0
+
 # Install only production dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built app from development stage
 COPY --from=development /usr/src/app/dist ./dist
